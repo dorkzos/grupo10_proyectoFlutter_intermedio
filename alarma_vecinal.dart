@@ -2,111 +2,156 @@ import 'package:flutter/material.dart';
 import 'package:inter/configuracion.dart';
 
 class AlarmaVecinal extends StatefulWidget {
-  // Recibimos el usuario logueado para personalizar la experiencia
   final String nombreUsuario;
 
-  const AlarmaVecinal({super.key, this.nombreUsuario = "Usuario"});
+  const AlarmaVecinal({super.key, this.nombreUsuario = "Josue Chino"});
 
   @override
   State<AlarmaVecinal> createState() => _AlarmaVecinalState();
 }
 
 class _AlarmaVecinalState extends State<AlarmaVecinal> {
-  final String direccionUsuario = "Calle Los Olivos #123";
+  late String nombreActual;
+  String direccionActual = "Calle Principal #123";
+  String telefonoActual = "79538888"; 
+  String tipoSangreActual = "O+"; 
 
-  // Lógica de Notificaciones: Lista simulada de alertas recientes
-  List<Map<String, String>> historialAlertas = [
-    {'usuario': 'Maria (Vecina)', 'tipo': 'Sospechoso', 'hora': 'Hace 5 min'},
-    {'usuario': 'Guardia Garita', 'tipo': 'Ronda Iniciada', 'hora': 'Hace 15 min'},
-  ];
-
-  final List<Map<String, dynamic>> alertas = [
-    {'titulo': 'Emergencia Médica', 'icono': Icons.local_hospital, 'color': Colors.redAccent},
-    {'titulo': 'Policía', 'icono': Icons.local_police, 'color': Colors.blue},
-    {'titulo': 'Incendio', 'icono': Icons.local_fire_department, 'color': Colors.orange},
-    {'titulo': 'Sospechoso', 'icono': Icons.visibility, 'color': Colors.grey},
-    {'titulo': 'Alarma Sonora', 'icono': Icons.notifications_active, 'color': Colors.amber},
-    {'titulo': 'Luces', 'icono': Icons.lightbulb, 'color': Colors.yellow.shade700},
-  ];
-
-  void _mostrarConfirmacion(BuildContext context, String tipoAlerta) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.orange),
-              SizedBox(width: 10),
-              Expanded(child: Text("Confirmar Alerta")),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("¿Confirmar envío de alerta a todos los vecinos?"),
-              SizedBox(height: 10),
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300)
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Tipo: $tipoAlerta", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("Emisor: ${widget.nombreUsuario}"),
-                    Text("Ubicación: $direccionUsuario"),
-                  ],
-                ),
-              )
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text("Cancelar", style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _simularEnvio(tipoAlerta);
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-              child: Text("ENVIAR AHORA"),
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+    nombreActual = widget.nombreUsuario.isEmpty ? "Josue Chino" : widget.nombreUsuario;
   }
 
-  // Lógica de Notificaciones: Agrega la alerta al historial local y muestra feedback
-  void _simularEnvio(String alerta) {
+  Future<void> _irAConfiguracion() async {
+    final resultado = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Configuracion(
+          nombreActual: nombreActual,
+          direccionActual: direccionActual,
+          telefonoActual: telefonoActual,
+          tipoSangreActual: tipoSangreActual,
+        ),
+      ),
+    );
+
+    if (resultado != null) {
+      setState(() {
+        nombreActual = resultado['nuevoNombre'];
+        direccionActual = resultado['nuevaDireccion'];
+        telefonoActual = resultado['nuevoTelefono'];
+        tipoSangreActual = resultado['nuevoSangre'];
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("¡Perfil actualizado con éxito!"), backgroundColor: Colors.green),
+      );
+    }
+  }
+
+  final List<Map<String, dynamic>> alertas = [
+    {'titulo': 'Médica', 'icono': Icons.medical_services, 'color': Colors.redAccent},
+    {'titulo': 'Policía', 'icono': Icons.local_police, 'color': Colors.blue[800]},
+    {'titulo': 'Incendio', 'icono': Icons.local_fire_department, 'color': Colors.orange[800]},
+    {'titulo': 'Sospechoso', 'icono': Icons.visibility, 'color': Colors.grey[700]},
+    {'titulo': 'Alarma', 'icono': Icons.notifications_active, 'color': Colors.amber[700]},
+    {'titulo': 'Luces', 'icono': Icons.lightbulb, 'color': Colors.yellow[700]},
+  ];
+
+  List<Map<String, String>> historialAlertas = [
+    {'usuario': 'Guardia', 'tipo': 'Ronda iniciada', 'hora': 'Hace 10 min'},
+  ];
+
+  void _simularNotificacionPush(String tipoAlerta) {
+    final snackBar = SnackBar(
+      content: Container(
+        height: 60,
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              child: Icon(Icons.notification_important, color: Colors.red),
+            ),
+            SizedBox(width: 15),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("ALERTA DE SEGURIDAD", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                Text("Has enviado una alerta de: $tipoAlerta", style: TextStyle(fontSize: 13)),
+              ],
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Colors.black87,
+      behavior: SnackBarBehavior.floating,
+      margin: EdgeInsets.only(
+        bottom: MediaQuery.of(context).size.height - 150,
+        left: 10,
+        right: 10
+      ),
+      duration: Duration(seconds: 4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _procesarEnvio(String alerta) {
     setState(() {
       historialAlertas.insert(0, {
         'usuario': 'Tú',
         'tipo': alerta,
-        'hora': 'Ahora mismo'
+        'hora': 'Ahora'
       });
     });
+    _simularNotificacionPush(alerta);
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
+  void _confirmarAlerta(String titulo) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("¿Enviar Alerta?"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: 10),
-            Expanded(child: Text("Notificación de $alerta enviada a la comunidad.")),
+            Text("Se notificará a todos los vecinos."),
+            SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade300)
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Usuario: $nombreActual", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("Teléfono: $telefonoActual"),
+                  Text("Tipo Sangre: $tipoSangreActual"),
+                  Text("Ubicación: $direccionActual", style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                ],
+              ),
+            )
           ],
         ),
-        backgroundColor: Colors.green[700],
-        duration: Duration(seconds: 4),
-        action: SnackBarAction(label: "DESHACER", textColor: Colors.white, onPressed: () {}),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancelar")),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _procesarEnvio(titulo);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: Text("ENVIAR AHORA"),
+          )
+        ],
       ),
     );
   }
@@ -115,70 +160,91 @@ class _AlarmaVecinalState extends State<AlarmaVecinal> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true, // Centramos el título como pediste
+        
+        // --- TÍTULO CON VIDA Y ESTILO ---
         title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Panel de Seguridad", style: TextStyle(color: Colors.black87, fontSize: 18)),
-            Text("Hola, ${widget.nombreUsuario}", style: TextStyle(color: Colors.grey, fontSize: 12)),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icono rojo vibrante para darle "vida" y sentido de alerta
+                Icon(Icons.security_rounded, color: Colors.redAccent, size: 28),
+                SizedBox(width: 8),
+                Text(
+                  "ALARMA VECINAL",
+                  style: TextStyle(
+                    color: Colors.blue[900], // Azul oscuro para contraste
+                    fontSize: 22, 
+                    fontWeight: FontWeight.w900, // Letra muy gruesa (Impacto)
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            // Subtítulo pequeño
+            Text(
+              "Hola, $nombreActual",
+              style: TextStyle(
+                color: Colors.grey[600], 
+                fontSize: 13, 
+                fontWeight: FontWeight.w500
+              ),
+            ),
           ],
         ),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        iconTheme: IconThemeData(color: Colors.black),
+        
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Configuracion()),
-              );
-            },
-            icon: CircleAvatar(
-              backgroundColor: Colors.blue[50],
-              child: Icon(Icons.person, color: Colors.blue),
+          Container(
+            margin: EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
             ),
-          ),
-          SizedBox(width: 10),
+            child: IconButton(
+              icon: Icon(Icons.settings, color: Colors.blue[800]),
+              onPressed: _irAConfiguracion,
+            ),
+          )
         ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.grey[200],
+            height: 1.0,
+          ),
+        ),
       ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Sección de Botones de Pánico
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 5),
-            child: Text(
-              "Activar Alerta",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-            ),
-          ),
           Expanded(
             flex: 3,
             child: GridView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: EdgeInsets.all(16),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.3,
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                childAspectRatio: 1.1,
               ),
               itemCount: alertas.length,
               itemBuilder: (context, index) {
-                return _buildAlertCard(alertas[index]);
+                return _buildCard(alertas[index]);
               },
             ),
           ),
-          
-          Divider(thickness: 5, color: Colors.grey[200]),
-
-          // Sección de Historial de Notificaciones (Lógica Visual)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 5),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Actividad Reciente", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Icon(Icons.history, color: Colors.grey),
+                Icon(Icons.history, size: 20, color: Colors.grey[600]),
+                SizedBox(width: 8),
+                Text(
+                  "Historial de Alertas", 
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[800], fontSize: 16)
+                ),
               ],
             ),
           ),
@@ -188,27 +254,21 @@ class _AlarmaVecinalState extends State<AlarmaVecinal> {
               padding: EdgeInsets.symmetric(horizontal: 16),
               itemCount: historialAlertas.length,
               itemBuilder: (context, index) {
-                final notificacion = historialAlertas[index];
-                bool esMio = notificacion['usuario'] == 'Tú';
                 return Card(
                   elevation: 0,
-                  color: esMio ? Colors.blue[50] : Colors.grey[50],
+                  color: Colors.grey[50],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.grey.shade200)
+                  ),
                   margin: EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: esMio ? Colors.blue : Colors.grey,
-                      child: Icon(Icons.notifications, color: Colors.white, size: 20),
-                      radius: 16,
+                      backgroundColor: Colors.white,
+                      child: Icon(Icons.history_toggle_off, size: 20, color: Colors.blue[300]),
                     ),
-                    title: Text(
-                      "${notificacion['tipo']} - ${notificacion['usuario']}",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                    trailing: Text(
-                      notificacion['hora']!,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    dense: true,
+                    title: Text(historialAlertas[index]['tipo']!, style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text("${historialAlertas[index]['usuario']} • ${historialAlertas[index]['hora']}"),
                   ),
                 );
               },
@@ -219,27 +279,41 @@ class _AlarmaVecinalState extends State<AlarmaVecinal> {
     );
   }
 
-  Widget _buildAlertCard(Map<String, dynamic> item) {
+  Widget _buildCard(Map<String, dynamic> item) {
     return GestureDetector(
-      onTap: () => _mostrarConfirmacion(context, item['titulo']),
+      onTap: () => _confirmarAlerta(item['titulo']),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: Offset(0, 2))
+            BoxShadow(
+              color: item['color'].withOpacity(0.2),
+              blurRadius: 10, 
+              offset: Offset(0, 5)
+            )
           ],
-          border: Border.all(color: Colors.grey.shade100),
+          border: Border.all(color: Colors.white, width: 2),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(item['icono'], size: 32, color: item['color']),
-            SizedBox(height: 8),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: item['color'].withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(item['icono'], size: 40, color: item['color']),
+            ),
+            SizedBox(height: 12),
             Text(
-              item['titulo'],
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[800], fontSize: 13),
+              item['titulo'], 
+              style: TextStyle(
+                fontSize: 15, 
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[800]
+              )
             ),
           ],
         ),
