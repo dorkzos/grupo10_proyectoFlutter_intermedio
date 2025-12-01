@@ -1,4 +1,3 @@
-```markdown
 # 🟡 App Intermedia: Guía de Seguridad Vecinal - Grupo 10
 
 *UMSA - Programación para Dispositivos Móviles I (INF-245)*  
