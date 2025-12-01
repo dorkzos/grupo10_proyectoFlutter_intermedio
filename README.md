@@ -19,7 +19,7 @@ Segunda fase del proyecto. Esta aplicación gestiona la seguridad comunitaria (b
 
 | Integrante | Rol | GitHub |
 | :--- | :--- | :--- |
-| *Dorian Patrick Menendez Limo* | 👑 Líder | @Dorkoz |
+| *Dorian Patrick Menendez Limo* | 👑 Líder | @Dorkos |
 | *Fernando Mauro Alarcon Fernandez* | 🎨 UI/UX | @AlarconFernando |
 | *Josué Bonifacio Chino Quispe* | 🎨 UI/UX | @SHINO-DOS |
 | *Sergio Alejandro Macias Quispe* | 💻 Dev | @Alee1234em |
